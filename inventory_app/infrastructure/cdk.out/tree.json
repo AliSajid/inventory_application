@@ -1,0 +1,656 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "Tree": {
+        "id": "Tree",
+        "path": "Tree",
+        "constructInfo": {
+          "fqn": "@aws-cdk/core.Construct",
+          "version": "1.123.0"
+        }
+      },
+      "inventory-app": {
+        "id": "inventory-app",
+        "path": "inventory-app",
+        "children": {
+          "AppTable": {
+            "id": "AppTable",
+            "path": "inventory-app/AppTable",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "inventory-app/AppTable/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::DynamoDB::Table",
+                  "aws:cdk:cloudformation:props": {
+                    "keySchema": [
+                      {
+                        "attributeName": "PK",
+                        "keyType": "HASH"
+                      },
+                      {
+                        "attributeName": "SK",
+                        "keyType": "RANGE"
+                      }
+                    ],
+                    "attributeDefinitions": [
+                      {
+                        "attributeName": "PK",
+                        "attributeType": "S"
+                      },
+                      {
+                        "attributeName": "SK",
+                        "attributeType": "S"
+                      }
+                    ],
+                    "provisionedThroughput": {
+                      "readCapacityUnits": 5,
+                      "writeCapacityUnits": 5
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "@aws-cdk/aws-dynamodb.CfnTable",
+                  "version": "1.123.0"
+                }
+              },
+              "ScalingRole": {
+                "id": "ScalingRole",
+                "path": "inventory-app/AppTable/ScalingRole",
+                "constructInfo": {
+                  "fqn": "@aws-cdk/core.Resource",
+                  "version": "1.123.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "@aws-cdk/aws-dynamodb.Table",
+              "version": "1.123.0"
+            }
+          },
+          "AppTableName": {
+            "id": "AppTableName",
+            "path": "inventory-app/AppTableName",
+            "constructInfo": {
+              "fqn": "@aws-cdk/core.CfnOutput",
+              "version": "1.123.0"
+            }
+          },
+          "ChaliceApp": {
+            "id": "ChaliceApp",
+            "path": "inventory-app/ChaliceApp",
+            "children": {
+              "ChaliceAppCode": {
+                "id": "ChaliceAppCode",
+                "path": "inventory-app/ChaliceApp/ChaliceAppCode",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "inventory-app/ChaliceApp/ChaliceAppCode/Stage",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.AssetStaging",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "inventory-app/ChaliceApp/ChaliceAppCode/AssetBucket",
+                    "children": {
+                      "Notifications": {
+                        "id": "Notifications",
+                        "path": "inventory-app/ChaliceApp/ChaliceAppCode/AssetBucket/Notifications",
+                        "constructInfo": {
+                          "fqn": "@aws-cdk/core.Construct",
+                          "version": "1.123.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/aws-s3.BucketBase",
+                      "version": "1.123.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "@aws-cdk/aws-s3-assets.Asset",
+                  "version": "1.123.0"
+                }
+              },
+              "ChaliceApp": {
+                "id": "ChaliceApp",
+                "path": "inventory-app/ChaliceApp/ChaliceApp",
+                "children": {
+                  "$Mappings": {
+                    "id": "$Mappings",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/$Mappings",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.Construct",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "$Conditions": {
+                    "id": "$Conditions",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/$Conditions",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.Construct",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "$Rules": {
+                    "id": "$Rules",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/$Rules",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.Construct",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "DefaultRole": {
+                    "id": "DefaultRole",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/DefaultRole",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Sid": "",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              },
+                              "Action": "sts:AssumeRole"
+                            }
+                          ]
+                        },
+                        "policies": [
+                          {
+                            "policyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                  ],
+                                  "Resource": "arn:*:logs:*:*:*"
+                                }
+                              ]
+                            },
+                            "policyName": "DefaultRolePolicy"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/aws-iam.CfnRole",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "APIHandler": {
+                    "id": "APIHandler",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/APIHandler",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Ref": "AssetParameters5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613S3Bucket189FA1D9"
+                          },
+                          "key": {
+                            "Fn::Join": [
+                              "",
+                              [
+                                {
+                                  "Fn::Select": [
+                                    0,
+                                    {
+                                      "Fn::Split": [
+                                        "||",
+                                        {
+                                          "Ref": "AssetParameters5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613S3VersionKeyD278E1DC"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "Fn::Select": [
+                                    1,
+                                    {
+                                      "Fn::Split": [
+                                        "||",
+                                        {
+                                          "Ref": "AssetParameters5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613S3VersionKeyD278E1DC"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        "environment": {
+                          "variables": {
+                            "APP_TABLE_NAME": {
+                              "Ref": "AppTable815C50BC"
+                            }
+                          }
+                        },
+                        "handler": "app.app",
+                        "memorySize": 128,
+                        "role": {
+                          "Fn::GetAtt": [
+                            "DefaultRole",
+                            "Arn"
+                          ]
+                        },
+                        "runtime": "python3.7",
+                        "tags": {
+                          "aws-chalice": "version=1.24.2:stage=inventory-app:app=inventory_app"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/aws-sam.CfnFunction",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "RestAPI": {
+                    "id": "RestAPI",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/RestAPI",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Api",
+                      "aws:cdk:cloudformation:props": {
+                        "stageName": "api",
+                        "definitionBody": {
+                          "swagger": "2.0",
+                          "info": {
+                            "version": "1.0",
+                            "title": "inventory_app"
+                          },
+                          "schemes": [
+                            "https"
+                          ],
+                          "paths": {
+                            "/users": {
+                              "post": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                }
+                              }
+                            },
+                            "/users/{username}": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "parameters": [
+                                  {
+                                    "name": "username",
+                                    "in": "path",
+                                    "required": true,
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "definitions": {
+                            "Empty": {
+                              "type": "object",
+                              "title": "Empty Schema"
+                            }
+                          },
+                          "x-amazon-apigateway-binary-media-types": [
+                            "application/octet-stream",
+                            "application/x-tar",
+                            "application/zip",
+                            "audio/basic",
+                            "audio/ogg",
+                            "audio/mp4",
+                            "audio/mpeg",
+                            "audio/wav",
+                            "audio/webm",
+                            "image/png",
+                            "image/jpg",
+                            "image/jpeg",
+                            "image/gif",
+                            "video/ogg",
+                            "video/mpeg",
+                            "video/webm"
+                          ]
+                        },
+                        "endpointConfiguration": "EDGE"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/aws-sam.CfnApi",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "APIHandlerInvokePermission": {
+                    "id": "APIHandlerInvokePermission",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/APIHandlerInvokePermission",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Ref": "APIHandler"
+                        },
+                        "principal": "apigateway.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::Sub": [
+                            "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestAPIId}/*",
+                            {
+                              "RestAPIId": {
+                                "Ref": "RestAPI"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/aws-lambda.CfnPermission",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "$Hooks": {
+                    "id": "$Hooks",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/$Hooks",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.Construct",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "$Ouputs": {
+                    "id": "$Ouputs",
+                    "path": "inventory-app/ChaliceApp/ChaliceApp/$Ouputs",
+                    "children": {
+                      "RestAPIId": {
+                        "id": "RestAPIId",
+                        "path": "inventory-app/ChaliceApp/ChaliceApp/$Ouputs/RestAPIId",
+                        "constructInfo": {
+                          "fqn": "@aws-cdk/core.CfnOutput",
+                          "version": "1.123.0"
+                        }
+                      },
+                      "APIHandlerName": {
+                        "id": "APIHandlerName",
+                        "path": "inventory-app/ChaliceApp/ChaliceApp/$Ouputs/APIHandlerName",
+                        "constructInfo": {
+                          "fqn": "@aws-cdk/core.CfnOutput",
+                          "version": "1.123.0"
+                        }
+                      },
+                      "APIHandlerArn": {
+                        "id": "APIHandlerArn",
+                        "path": "inventory-app/ChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn",
+                        "constructInfo": {
+                          "fqn": "@aws-cdk/core.CfnOutput",
+                          "version": "1.123.0"
+                        }
+                      },
+                      "EndpointURL": {
+                        "id": "EndpointURL",
+                        "path": "inventory-app/ChaliceApp/ChaliceApp/$Ouputs/EndpointURL",
+                        "constructInfo": {
+                          "fqn": "@aws-cdk/core.CfnOutput",
+                          "version": "1.123.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.Construct",
+                      "version": "1.123.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "@aws-cdk/cloudformation-include.CfnInclude",
+                  "version": "1.123.0"
+                }
+              },
+              "DefaultRole": {
+                "id": "DefaultRole",
+                "path": "inventory-app/ChaliceApp/DefaultRole",
+                "children": {
+                  "Policy": {
+                    "id": "Policy",
+                    "path": "inventory-app/ChaliceApp/DefaultRole/Policy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "inventory-app/ChaliceApp/DefaultRole/Policy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": [
+                                    "dynamodb:BatchGetItem",
+                                    "dynamodb:GetRecords",
+                                    "dynamodb:GetShardIterator",
+                                    "dynamodb:Query",
+                                    "dynamodb:GetItem",
+                                    "dynamodb:Scan",
+                                    "dynamodb:ConditionCheckItem",
+                                    "dynamodb:BatchWriteItem",
+                                    "dynamodb:PutItem",
+                                    "dynamodb:UpdateItem",
+                                    "dynamodb:DeleteItem"
+                                  ],
+                                  "Effect": "Allow",
+                                  "Resource": [
+                                    {
+                                      "Fn::GetAtt": [
+                                        "AppTable815C50BC",
+                                        "Arn"
+                                      ]
+                                    },
+                                    {
+                                      "Ref": "AWS::NoValue"
+                                    }
+                                  ]
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "policyName": "ChaliceAppDefaultRolePolicyCAAAC186",
+                            "roles": [
+                              {
+                                "Fn::Select": [
+                                  1,
+                                  {
+                                    "Fn::Split": [
+                                      "/",
+                                      {
+                                        "Fn::Select": [
+                                          5,
+                                          {
+                                            "Fn::Split": [
+                                              ":",
+                                              {
+                                                "Fn::GetAtt": [
+                                                  "DefaultRole",
+                                                  "Arn"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "@aws-cdk/aws-iam.CfnPolicy",
+                          "version": "1.123.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/aws-iam.Policy",
+                      "version": "1.123.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "@aws-cdk/core.Resource",
+                  "version": "1.123.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "@aws-cdk/core.Construct",
+              "version": "1.123.0"
+            }
+          },
+          "AssetParameters": {
+            "id": "AssetParameters",
+            "path": "inventory-app/AssetParameters",
+            "children": {
+              "5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613": {
+                "id": "5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613",
+                "path": "inventory-app/AssetParameters/5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613",
+                "children": {
+                  "S3Bucket": {
+                    "id": "S3Bucket",
+                    "path": "inventory-app/AssetParameters/5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613/S3Bucket",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.CfnParameter",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "S3VersionKey": {
+                    "id": "S3VersionKey",
+                    "path": "inventory-app/AssetParameters/5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613/S3VersionKey",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.CfnParameter",
+                      "version": "1.123.0"
+                    }
+                  },
+                  "ArtifactHash": {
+                    "id": "ArtifactHash",
+                    "path": "inventory-app/AssetParameters/5344427d057d3bab8f0c8d1ab6bcc02109d8b6056281a8cadbfd95655280b613/ArtifactHash",
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/core.CfnParameter",
+                      "version": "1.123.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "@aws-cdk/core.Construct",
+                  "version": "1.123.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "@aws-cdk/core.Construct",
+              "version": "1.123.0"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "inventory-app/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "inventory-app/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "@aws-cdk/core.CfnResource",
+                  "version": "1.123.0"
+                }
+              },
+              "Condition": {
+                "id": "Condition",
+                "path": "inventory-app/CDKMetadata/Condition",
+                "constructInfo": {
+                  "fqn": "@aws-cdk/core.CfnCondition",
+                  "version": "1.123.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "@aws-cdk/core.Construct",
+              "version": "1.123.0"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "@aws-cdk/core.Stack",
+          "version": "1.123.0"
+        }
+      }
+    },
+    "constructInfo": {
+      "fqn": "@aws-cdk/core.App",
+      "version": "1.123.0"
+    }
+  }
+}
