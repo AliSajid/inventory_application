@@ -4,10 +4,10 @@ from nox.sessions import Session
 
 
 nox.options.sessions = "lint", "mypy", "pytype", "tests"
-locations = "src", "tests", "noxfile.py", "docs/conf.py"
+locations = "inventory_app", "noxfile.py"
 
 
-@nox.session(python=["3.7","3.8", "3.9")
+@nox.session(python=["3.7", "3.8", "3.9"])
 def black(session: Session) -> None:
     """Run black code formatter."""
     args = session.posargs or locations
@@ -40,7 +40,7 @@ def mypy(session: Session) -> None:
     session.run("mypy", *args)
 
 
-@nox.session(python=["3.7", "3.8", "3.9")
+@nox.session(python=["3.7", "3.8", "3.9"])
 def pytype(session: Session) -> None:
     """Type-check using pytype."""
     args = session.posargs or locations
@@ -56,7 +56,7 @@ def tests(session: Session) -> None:
     session.run("pytest", *args)
 
 
-@nox.session(python=["3.7", "3.8", "3.9")
+@nox.session(python=["3.7", "3.8", "3.9"])
 def coverage(session: Session) -> None:
     """Upload coverage data."""
     session.install("coverage[toml]", "codecov")
