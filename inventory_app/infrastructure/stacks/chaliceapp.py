@@ -1,6 +1,6 @@
 import os
 
-from aws_cdk import aws_dynamodb as dynamodb, core as cdk
+from aws_cdk import aws_s3 as s3, core as cdk
 from chalice.cdk import Chalice
 
 
@@ -12,28 +12,27 @@ RUNTIME_SOURCE_DIR = os.path.join(
 class ChaliceApp(cdk.Stack):
     def __init__(self, scope, id, **kwargs):
         super().__init__(scope, id, **kwargs)
-        self.dynamodb_table = self._create_ddb_table()
+        self.s3_bucket = self._create_s3_bucket()
         self.chalice = Chalice(
             self,
             "ChaliceApp",
             source_dir=RUNTIME_SOURCE_DIR,
             stage_config={
                 "environment_variables": {
-                    "APP_TABLE_NAME": self.dynamodb_table.table_name
+                    "INVENTORY_BUCKET_NAME": self.s3_bucket.bucket_name
                 }
             },
         )
-        self.dynamodb_table.grant_read_write_data(self.chalice.get_role("DefaultRole"))
+        self.s3_bucket.grant_read_write(self.chalice.get_role("DefaultRole"))
 
-    def _create_ddb_table(self):
-        dynamodb_table = dynamodb.Table(
-            self,
-            "AppTable",
-            partition_key=dynamodb.Attribute(
-                name="PK", type=dynamodb.AttributeType.STRING
-            ),
-            sort_key=dynamodb.Attribute(name="SK", type=dynamodb.AttributeType.STRING),
-            removal_policy=cdk.RemovalPolicy.DESTROY,
+    def _create_s3_bucket(self):
+        """
+
+        """
+
+        bucket = s3.Bucket(
+        self,
+        id = "inventory-app.banseljaj.com"
         )
-        cdk.CfnOutput(self, "AppTableName", value=dynamodb_table.table_name)
-        return dynamodb_table
+        cdk.CfnOutput(self, "AppBucketName", value=bucket.bucket_name)
+        return bucket
