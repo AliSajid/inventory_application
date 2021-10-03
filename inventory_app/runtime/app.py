@@ -1,13 +1,141 @@
+"""
+
+"""
 import os
 import boto3
 from chalice import Chalice, Response
 
-from inventory import Inventory
-from item import Item
+import uuid
+import json
+import tempfile
+
+from datetime import datetime
+
+import botocore.exceptions
+
+
+class Item:
+    """
+    A class for storing data for an item
+    """
+
+    def __init__(self, name, quantity, date=None, time=None, id=None):
+        """
+
+        :param name:
+        :param quantity:
+        """
+        self.name = name
+        self.quantity = quantity
+        if date is None:
+            self.date = datetime.utcnow().date().isoformat()
+        else:
+            self.date = date
+        if time is None:
+            self.time = datetime.utcnow().time().isoformat()
+        else:
+            self.time = time
+        if id is None:
+            self.id = str(
+                uuid.uuid5(uuid.NAMESPACE_DNS, f"{self.name}.inventoryapp.work")
+            )
+        else:
+            self.id = id
+
+    def __repr__(self):
+        return f"<Item: {self.name}, Quantity:{self.quantity}>"
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __iter__(self):
+        """
+
+        :return:
+        """
+        yield "id", self.id
+        yield "name", self.name
+        yield "quantity", self.quantity
+        yield "date", self.date
+        yield "time", self.time
+
+    def dump(self, file):
+        """
+
+        :return:
+        """
+        with open(file, "w") as f:
+            json.dump(dict(self), f)
+
+    @classmethod
+    def load(cls, filename):
+        """
+
+        :return:
+        """
+        with open(filename, "r") as f:
+            data = json.load(f)
+
+        return cls(**data)
+
+
+class Inventory:
+    def __init__(self):
+        """ """
+        self.__inventory = []
+
+    def __len__(self):
+        return len(self.__inventory)
+
+    def add_or_update_item(self, item: Item):
+        """
+
+        :param item:
+        :return:
+        """
+        if item in self.__inventory:
+            self.__update_item(item)
+        else:
+            self.__inventory.append(item)
+
+    def __update_item(self, item: Item):
+        """
+
+        :param item:
+        :return:
+        """
+        updated = []
+        for it in self.__inventory:
+            if it == item:
+                updated.append(item)
+            else:
+                updated.append(it)
+        self.__inventory = updated
+
+    def inventory(self):
+        return self.__inventory
+
+    def dump(self, file):
+        converted = [dict(item) for item in self.__inventory]
+        with open(file, "w") as f:
+            json.dump(converted, f)
+
+    @classmethod
+    def load(cls, file):
+        with open(file) as f:
+            data = json.load(f)
+        inv = cls()
+        for item in data:
+            inv.add_or_update_item(Item(**item))
+
+        return inv
+
 
 app = Chalice(app_name="inventory_app")
+app.debug = True
+
 s3 = boto3.resource("s3")
-s3bucket = s3.Bucket(os.environ.get("INVENTORY_BUCKET_NAME", "test.banseljaj.com"))
+s3bucket = s3.Bucket(os.environ.get("INVENTORY_BUCKET_NAME", "inventory.banseljaj.com"))
 
 
 @app.route("/item", methods=["POST"])
@@ -15,8 +143,12 @@ def add_or_update_item():
 
     """ """
 
-    body = app.current_request.json_body
-    item = Item(name=body.get("name"), quantity=body.get("quantity"))
+    body = app.current_request.raw_body.decode()
+    print(type(body))
+    print(body)
+    json_body = json.loads(str(body))
+    print(json_body)
+    item = Item(name=json_body.get("name"), quantity=json_body.get("quantity"))
     dumpfile = tempfile.mktemp()
     item_key = f"{item.name}/{item.id}.json"
 
@@ -31,18 +163,16 @@ def add_or_update_item():
 
     out_body = json.dumps(dict(item))
 
-    return Respone(status_code=200, body=out_body)
+    return Response(status_code=200, body=out_body)
 
 
 @app.route("/item", methods=["GET"])
 def get_item():
     """ """
 
-    body = app.current_request.json_body
+    item_name = app.current_request.query_params.get("name")
 
-    item_name = body.get("name", "")
-
-    item_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{body['name']}.inventoryapp.work"))
+    item_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{item_name}.inventoryapp.work"))
 
     file_key = f"{item_name}/{item_id}.json"
 
@@ -55,34 +185,39 @@ def get_item():
     return Response(status_code=200, body=json.dumps(data))
 
 
-@app.on_s3_event(bucket=s3bucket.name, suffix=".json")
+@app.on_s3_event(bucket=s3bucket.name, suffix=".json", events=['s3:ObjectCreated:*'])
 def update_inventory(event):
     """ """
 
+    app.log.debug("Received event for bucket: %s, key: %s",
+                  event.bucket, event.key)
     new_key = event.key
 
     dumpfile = tempfile.mktemp()
 
-    s3bucket.download_file(Key=new_key, Filename=dumpfile)
+    app.log.debug(f"Dumpfile: {dumpfile}, New Key = {new_key}")
+
+    inventory_bucket = s3.Bucket(name=event.bucket)
+    inventory_bucket.download_file(Key=new_key, Filename=dumpfile)
 
     invdumpfile = tempfile.mktemp()
 
     invdump_key = "complete.inventory"
 
-    if list(s3bucket.objects.filter(prefix=invdump_key)) == []:
+    if list(s3bucket.objects.filter(Prefix=invdump_key)) == []:
         inv = Inventory()
         tempinvfile = tempfile.mktemp()
         inv.dump(tempfile)
-        s3bucket.upload_file(tempinvfile, invdump_key)
+        inventory_bucket.upload_file(tempinvfile, invdump_key)
 
-    s3bucket.download_file(Key=invdump_key, Filename=invdumpfile)
+    inventory_bucket.download_file(Key=invdump_key, Filename=invdumpfile)
 
     inventory = Inventory.load(invdumpfile)
     updated_item = Item.load(dumpfile)
     inventory.add_or_update_item(updated_item)
     inventory.dump(invdumpfile)
 
-    s3bucket.upload_file(Filename=invdumpfile, Key=invdump_key)
+    inventory_bucket.upload_file(Filename=invdumpfile, Key=invdump_key)
 
     return {}
 
