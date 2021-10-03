@@ -94,8 +94,10 @@ class Inventory:
         :return:
         """
         if item in self.__inventory:
+            app.log.debug("Item already exists. Updating.")
             self.__update_item(item)
         else:
+            app.log.debug("New item. Adding to inventory")
             self.__inventory.append(item)
 
     def __update_item(self, item: Item):
@@ -126,7 +128,9 @@ class Inventory:
             data = json.load(f)
         inv = cls()
         for item in data:
+            app.log.debug(f"Processing {item}")
             inv.add_or_update_item(Item(**item))
+        app.log.debug(f"Inventory: {inv.inventory()}")
 
         return inv
 
@@ -207,7 +211,7 @@ def update_inventory(event):
     if list(s3bucket.objects.filter(Prefix=invdump_key)) == []:
         inv = Inventory()
         tempinvfile = tempfile.mktemp()
-        inv.dump(tempfile)
+        inv.dump(tempinvfile)
         inventory_bucket.upload_file(tempinvfile, invdump_key)
 
     inventory_bucket.download_file(Key=invdump_key, Filename=invdumpfile)
@@ -229,8 +233,15 @@ def get_inventory():
     inventory_key = "complete.inventory"
     inventory_file = tempfile.mktemp()
 
+    app.log.debug(f"Inventory Dumpfile: {inventory_file}")
+
     s3bucket.download_file(Key=inventory_key, Filename=inventory_file)
+    with open(inventory_file) as f:
+        app.log.debug(f.read())
 
     inventory = Inventory.load(inventory_file)
 
-    return Response(status_code=200, body=inventory.inventory)
+    converted = [dict(item) for item in inventory.inventory()]
+    out = json.dumps(converted)
+    app.log.debug(out)
+    return Response(status_code=200, body=out)
