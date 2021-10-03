@@ -208,7 +208,7 @@ def update_inventory(event):
 
     invdump_key = "complete.inventory"
 
-    if list(s3bucket.objects.filter(Prefix=invdump_key)) == []:
+    if list(inventory_bucket.objects.filter(Prefix=invdump_key)) == []:
         inv = Inventory()
         tempinvfile = tempfile.mktemp()
         inv.dump(tempinvfile)
