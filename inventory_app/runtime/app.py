@@ -136,6 +136,7 @@ class Inventory:
 
 
 app = Chalice(app_name="inventory_app")
+app.api.cors = True
 app.debug = True
 
 s3 = boto3.resource("s3")
